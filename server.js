@@ -4,6 +4,7 @@ var express     = require('express');
 var bodyParser  = require('body-parser');
 var expect      = require('chai').expect;
 var cors        = require('cors');
+let helmet      = require('helmet');
 
 var apiRoutes         = require('./routes/api.js');
 var fccTestingRoutes  = require('./routes/fcctesting.js');
@@ -15,8 +16,17 @@ app.use('/public', express.static(process.cwd() + '/public'));
 
 app.use(cors({origin: '*'})); //For FCC testing purposes only
 
+//protect against hackers placing the site content into a their iframe
+app.use(helmet.frameguard({action: 'sameorigin'}));
+//protect against dns prefetching
+app.use(helmet.dnsPrefetchControl());
+//only allow my site to send referrer information from my own pages
+app.use(helmet.referrerPolicy({policy: 'same-origin'}));
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+
 
 //Sample front-end
 app.route('/b/:board/')
